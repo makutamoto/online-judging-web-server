@@ -1,0 +1,1 @@
+CREATE TABLE tasks (contest_id VARCHAR(64), problem_number TINYINT, title TINYTEXT, problem TEXT, testcases JSON, PRIMARY KEY(contest_id, problem_number)) DEFAULT CHARACTER SET utf8mb4;
