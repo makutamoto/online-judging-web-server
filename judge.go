@@ -37,11 +37,11 @@ func judge(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		uuid := uuid.New().String()
+		judgingSubmissions[uuid] = make([]*websocket.Conn, 0)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "{ \"id\": \"%s\" }", uuid)
 		vars := mux.Vars(r)
 		task, _ := strconv.Atoi(vars["task"])
-		bytes = prepareJSON(vars["contest"], task, submission)
-		go sendData(bytes, uuid)
+		go sendData(uuid, vars["contest"], task, submission)
 	}
 }

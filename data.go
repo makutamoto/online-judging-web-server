@@ -35,9 +35,11 @@ type serverType struct {
 	Problem  problemType `json:"problem"`
 }
 
-func sendData(data []byte, id string) {
+func sendData(id string, contest string, task int, submission submissionType) {
 	var result resultType
 	var status statusType
+	var maxMemory, maxTime int64
+	data := prepareJSON(contest, task, submission)
 	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:7867/submit", nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -54,6 +56,12 @@ func sendData(data []byte, id string) {
 		if err := json.Unmarshal(bytes, &status); err != nil {
 			log.Fatalln(err)
 		}
+		if maxMemory < status.Memory {
+			maxMemory = status.Memory
+		}
+		if maxTime < status.Time {
+			maxTime = status.Time
+		}
 		res := resultType(status.Result)
 		fmt.Printf("%d/%d %v %dms %dkb\n", status.CurrentCase, status.WholeCase, res, status.Time, status.Memory)
 		result.update(res)
@@ -65,6 +73,8 @@ func sendData(data []byte, id string) {
 	for _, connClient := range judgingSubmissions[id] {
 		connClient.Close()
 	}
+	registerSubmission(id, contest, task, submission, result, maxMemory, maxTime)
+	delete(judgingSubmissions, id)
 	if resultType(status.WholeResult) == resultCompileError {
 		fmt.Println(status.Description)
 	}
