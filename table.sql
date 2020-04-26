@@ -1,1 +1,2 @@
-CREATE TABLE tasks (contest_id VARCHAR(64), problem_number TINYINT, title TINYTEXT, problem TEXT, testcases JSON, PRIMARY KEY(contest_id, problem_number)) DEFAULT CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS tasks (contest_id VARCHAR(64), problem_number TINYINT, title TINYTEXT, problem TEXT, time_limit INT, accuracy TINYINT, testcases JSON, PRIMARY KEY(contest_id, problem_number)) DEFAULT CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS submissions (submission_id VARCHAR(64) PRIMARY KEY, contest_id VARCHAR(64), problem_number TINYINT, lang VARCHAR(32), code TEXT) DEFAULT CHARACTER SET utf8mb4;

@@ -70,10 +70,9 @@ func sendData(data []byte, id string) {
 	}
 }
 
-func prepareJSON(submission submissionType) []byte {
-	data := serverType{Language: submission.Lang, Code: submission.Code, Problem: problemType{
-		Limit: 2000, Accuracy: -3, Tests: []testType{{In: "3 \n1 2 3\n", Out: "1\n2\nFizz\n"}, {In: "3\n2 3 1\n", Out: "2\nFizz\n1\n"}},
-	}}
+func prepareJSON(contest string, task int, submission submissionType) []byte {
+	problem := getTestData("bc1", 1)
+	data := serverType{Language: submission.Lang, Code: submission.Code, Problem: problem}
 	json, err := json.Marshal(data)
 	if err != nil {
 		log.Fatal(err)

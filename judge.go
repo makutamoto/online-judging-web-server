@@ -6,13 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 type submissionType struct {
-	ID   string `json:"id"`
 	Lang string `json:"lang"`
 	Code string `json:"code"`
 }
@@ -36,8 +37,11 @@ func judge(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		uuid := uuid.New().String()
+		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "{ \"id\": \"%s\" }", uuid)
-		bytes = prepareJSON(submission)
+		vars := mux.Vars(r)
+		task, _ := strconv.Atoi(vars["task"])
+		bytes = prepareJSON(vars["contest"], task, submission)
 		go sendData(bytes, uuid)
 	}
 }
