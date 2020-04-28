@@ -3,11 +3,29 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+type detailRowType struct {
+	Title  string `json:"title"`
+	Result int    `json:"result"`
+	Time   int64  `json:"time"`
+	Memory int64  `json:"memory"`
+}
+
+type detailType struct {
+	Contest      string          `json:"contest"`
+	ContestID    string          `json:"contest_id"`
+	Task         string          `json:"task"`
+	TaskNumber   string          `json:"task_number"`
+	WholeResult  int             `json:"whole_result"`
+	MaxTime      int64           `json:"max_time"`
+	MaxMemory    int64           `json:"max_memory"`
+	CompileError string          `json:"compile_error"`
+	Details      []detailRowType `json:"details"`
+}
 
 var db *sql.DB
 
@@ -32,30 +50,48 @@ func getTestData(contest string, task int) problemType {
 	return problem
 }
 
-func registerSubmission(id string, contest string, task int, submission submissionType, wholeResult resultType, maxMemory int64, maxTime int64) {
-	rows, err := db.Query("INSERT INTO `submissions`(id,contest, task, lang, code, whole_result, max_memory, max_time) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", id, contest, task, submission.Lang, submission.Code, wholeResult, maxMemory, maxTime)
+func registerSubmission(id string, contest string, task int, submission submissionType, wholeResult resultType, maxMemory int64, maxTime int64, description string, detail []detailRowType) {
+	bytes, err := json.Marshal(&detail)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		return
+	}
+	rows, err := db.Query("INSERT INTO `submissions`(`id`, `contest`, `task`, `lang`, `code`, `whole_result`, `max_memory`, `max_time`, `compile_error`, `details`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", id, contest, task, submission.Lang, submission.Code, wholeResult, maxMemory, maxTime, description, bytes)
+	if err != nil {
+		log.Println(err)
 		return
 	}
 	rows.Close()
 }
 
-func getSubmissionOverview(id string) statusType {
-	var status statusType
-	rows, err := db.Query("SELECT `whole_result`, `max_memory`, `max_time` FROM `submissions` WHERE `id` = ?;", id)
+func getSubmissionDetail(id string) detailType {
+	var detail detailType
+	var bytes []byte
+	rows, err := db.Query("SELECT `contests`.`title` AS `contest`, contest AS `contest_id`, `tasks`.`title` AS `task`, `submissions`.`task` AS `task_number`, `whole_result`, `max_time`, `max_memory`, `compile_error`, `details` FROM `submissions` JOIN `contests` ON contests.id = submissions.contest JOIN `tasks` USING(`contest`) WHERE `submissions`.`id` = ?;", id)
 	defer rows.Close()
 	if err != nil {
 		log.Println(err)
 	}
 	if rows.Next() {
-		if err := rows.Scan(&status.Result, &status.Memory, &status.Time); err != nil {
+		if err := rows.Scan(
+			&detail.Contest,
+			&detail.ContestID,
+			&detail.Task,
+			&detail.TaskNumber,
+			&detail.WholeResult,
+			&detail.MaxTime,
+			&detail.MaxMemory,
+			&detail.CompileError,
+			&bytes); err != nil {
 			log.Println(err)
-			return status
+			return detail
 		}
-		status.WholeResult = status.Result
+		if err := json.Unmarshal(bytes, &detail.Details); err != nil {
+			log.Println(err)
+			return detail
+		}
 	}
-	return status
+	return detail
 }
 
 func initDB() {

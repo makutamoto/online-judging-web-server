@@ -14,7 +14,8 @@ func main() {
 	judgingSubmissions = map[string][]*websocket.Conn{}
 	r := mux.NewRouter()
 	r.HandleFunc(`/contests/{contest}/tasks/{task:[\d+]}`, judge).Methods("POST")
-	r.HandleFunc("/submissions/{id}", connectClient).Methods("GET")
+	r.HandleFunc("/submissions/realtime/{id}", getRealtime).Methods("GET")
+	r.HandleFunc("/submissions/details/{id}", getDetail).Methods("GET")
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

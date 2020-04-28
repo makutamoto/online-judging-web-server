@@ -9,6 +9,8 @@ import (
 )
 
 type statusType struct {
+	End         bool   `json:"end"`
+	Title       string `json:"title"`
 	WholeResult int    `json:"whole_result"`
 	Result      int    `json:"result"`
 	Time        int64  `json:"time"`
@@ -19,8 +21,9 @@ type statusType struct {
 }
 
 type testType struct {
-	In  string `json:"in"`
-	Out string `json:"out"`
+	Title string `json:"title"`
+	In    string `json:"in"`
+	Out   string `json:"out"`
 }
 
 type problemType struct {
@@ -39,6 +42,7 @@ func sendData(id string, contest string, task int, submission submissionType) {
 	var result resultType
 	var status statusType
 	var maxMemory, maxTime int64
+	var detail []detailRowType
 	data := prepareJSON(contest, task, submission)
 	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:7867/submit", nil)
 	if err != nil {
@@ -65,19 +69,19 @@ func sendData(id string, contest string, task int, submission submissionType) {
 		res := resultType(status.Result)
 		fmt.Printf("%d/%d %v %dms %dkb\n", status.CurrentCase, status.WholeCase, res, status.Time, status.Memory)
 		result.update(res)
+		if status.End && res != resultCompileError {
+			detail = append(detail, detailRowType{Title: status.Title, Result: status.Result, Time: status.Time, Memory: status.Memory})
+		}
 		for _, connClient := range judgingSubmissions[id] {
 			connClient.WriteMessage(websocket.TextMessage, bytes)
 		}
 	}
 	fmt.Println(result)
+	registerSubmission(id, contest, task, submission, result, maxMemory, maxTime, status.Description, detail)
 	for _, connClient := range judgingSubmissions[id] {
 		connClient.Close()
 	}
-	registerSubmission(id, contest, task, submission, result, maxMemory, maxTime)
 	delete(judgingSubmissions, id)
-	if resultType(status.WholeResult) == resultCompileError {
-		fmt.Println(status.Description)
-	}
 }
 
 func prepareJSON(contest string, task int, submission submissionType) []byte {
