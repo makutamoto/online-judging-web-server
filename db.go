@@ -27,6 +27,12 @@ type detailType struct {
 	Details      []detailRowType `json:"details"`
 }
 
+type taskInfoType struct {
+	Title     string `json:"title"`
+	Problem   string `json:"problem"`
+	TimeLimit int    `json:"time_limit"`
+}
+
 var db *sql.DB
 
 func getTestData(contest string, task int) problemType {
@@ -92,6 +98,22 @@ func getSubmissionDetail(id string) detailType {
 		}
 	}
 	return detail
+}
+
+func getTaskInfo(contest string, task int) taskInfoType {
+	var taskInfo taskInfoType
+	rows, err := db.Query("SELECT `title`, `problem`, `time_limit` FROM tasks WHERE `contest` = ? AND `task` = ?;", contest, task)
+	defer rows.Close()
+	if err != nil {
+		log.Println(err)
+	}
+	if rows.Next() {
+		if err := rows.Scan(&taskInfo.Title, &taskInfo.Problem, &taskInfo.TimeLimit); err != nil {
+			log.Println(err)
+			return taskInfo
+		}
+	}
+	return taskInfo
 }
 
 func initDB() {

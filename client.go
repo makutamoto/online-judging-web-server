@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -25,6 +26,22 @@ func getRealtime(w http.ResponseWriter, r *http.Request) {
 func getDetail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	detail := getSubmissionDetail(vars["id"])
+	bytes, err := json.Marshal(&detail)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func getTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	task, _ := strconv.Atoi(vars["task"])
+	detail := getTaskInfo(vars["contest"], task)
 	bytes, err := json.Marshal(&detail)
 	if err != nil {
 		log.Println(err)
