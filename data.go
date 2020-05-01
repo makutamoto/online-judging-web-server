@@ -85,7 +85,7 @@ func sendData(id string, contest string, task int, submission submissionType) {
 }
 
 func prepareJSON(contest string, task int, submission submissionType) []byte {
-	problem := getTestData("bc1", 1)
+	problem := getTestData(contest, task)
 	data := serverType{Language: submission.Lang, Code: submission.Code, Problem: problem}
 	json, err := json.Marshal(data)
 	if err != nil {

@@ -53,3 +53,18 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func getTaskOverviews(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	list := getTaskList(vars["contest"])
+	bytes, err := json.Marshal(&list)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
