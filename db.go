@@ -38,6 +38,11 @@ type taskOverviewType struct {
 	TimeLimit int    `json:"time_limit"`
 }
 
+type contestInfoType struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
 var db *sql.DB
 
 func getTestData(contest string, task int) problemType {
@@ -139,6 +144,23 @@ func getTaskList(contest string) []taskOverviewType {
 		taskList = append(taskList, overview)
 	}
 	return taskList
+}
+
+func getContestInfo(contest string) contestInfoType {
+	var info contestInfoType
+	rows, err := db.Query("SELECT `title`, `description` FROM `contests` WHERE `id` = ?;", contest)
+	if err != nil {
+		log.Println(err)
+		return info
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err := rows.Scan(&info.Title, &info.Description); err != nil {
+			log.Println(err)
+			return info
+		}
+	}
+	return info
 }
 
 func initDB() {

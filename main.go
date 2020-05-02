@@ -13,6 +13,7 @@ func main() {
 	defer db.Close()
 	judgingSubmissions = map[string][]*websocket.Conn{}
 	r := mux.NewRouter()
+	r.HandleFunc(`/contests/{contest}/json`, getContest).Methods("GET")
 	r.HandleFunc(`/contests/{contest}/tasks/json`, getTaskOverviews).Methods("GET")
 	r.HandleFunc(`/contests/{contest}/tasks/{task:[\d+]}/json`, getTask).Methods("GET")
 	r.HandleFunc(`/contests/{contest}/tasks/{task:[\d+]}`, judge).Methods("POST")
