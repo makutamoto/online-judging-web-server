@@ -41,6 +41,7 @@ type taskOverviewType struct {
 type contestInfoType struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Explanation string `json:"explanation"`
 }
 
 var db *sql.DB
@@ -148,14 +149,14 @@ func getTaskList(contest string) []taskOverviewType {
 
 func getContestInfo(contest string) contestInfoType {
 	var info contestInfoType
-	rows, err := db.Query("SELECT `title`, `description` FROM `contests` WHERE `id` = ?;", contest)
+	rows, err := db.Query("SELECT `title`, `description`, `explanation` FROM `contests` WHERE `id` = ?;", contest)
 	if err != nil {
 		log.Println(err)
 		return info
 	}
 	defer rows.Close()
 	if rows.Next() {
-		if err := rows.Scan(&info.Title, &info.Description); err != nil {
+		if err := rows.Scan(&info.Title, &info.Description, &info.Explanation); err != nil {
 			log.Println(err)
 			return info
 		}
