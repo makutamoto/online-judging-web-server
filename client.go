@@ -23,9 +23,9 @@ func getRealtime(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getDetail(w http.ResponseWriter, r *http.Request) {
+func getSubmissionDetail(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	detail := getSubmissionDetail(vars["id"])
+	detail := getSubmissionDetailDB(vars["id"])
 	bytes, err := json.Marshal(&detail)
 	if err != nil {
 		log.Println(err)
@@ -38,10 +38,10 @@ func getDetail(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getTask(w http.ResponseWriter, r *http.Request) {
+func getTaskInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	task, _ := strconv.Atoi(vars["task"])
-	detail := getTaskInfo(vars["contest"], task)
+	detail := getTaskInfoDB(vars["contest"], task)
 	bytes, err := json.Marshal(&detail)
 	if err != nil {
 		log.Println(err)
@@ -54,9 +54,9 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getTaskOverviews(w http.ResponseWriter, r *http.Request) {
+func getTaskList(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	list := getTaskList(vars["contest"])
+	list := getTaskListDB(vars["contest"])
 	bytes, err := json.Marshal(&list)
 	if err != nil {
 		log.Println(err)
@@ -69,10 +69,38 @@ func getTaskOverviews(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getContest(w http.ResponseWriter, r *http.Request) {
+func getContestInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	list := getContestInfo(vars["contest"])
+	list := getContestInfoDB(vars["contest"])
 	bytes, err := json.Marshal(&list)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func getContestList(w http.ResponseWriter, r *http.Request) {
+	list := getContestListDB()
+	bytes, err := json.Marshal(&list)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func getSystemOverview(w http.ResponseWriter, r *http.Request) {
+	overview := getSystemOverviewDB()
+	bytes, err := json.Marshal(&overview)
 	if err != nil {
 		log.Println(err)
 		return

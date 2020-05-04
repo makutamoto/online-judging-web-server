@@ -44,6 +44,15 @@ type contestInfoType struct {
 	Explanation string `json:"explanation"`
 }
 
+type contestOverviewType struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+}
+
+type systemOverviewType struct {
+	Overview string `json:"overview"`
+}
+
 var db *sql.DB
 
 func getTestData(contest string, task int) problemType {
@@ -81,7 +90,7 @@ func registerSubmission(id string, contest string, task int, submission submissi
 	rows.Close()
 }
 
-func getSubmissionDetail(id string) detailType {
+func getSubmissionDetailDB(id string) detailType {
 	var detail detailType
 	var bytes []byte
 	rows, err := db.Query("SELECT `contests`.`title` AS `contest`, contest AS `contest_id`, `tasks`.`title` AS `task`, `submissions`.`task` AS `task_number`, `whole_result`, `max_time`, `max_memory`, `compile_error`, `details` FROM `submissions` JOIN `contests` ON contests.id = submissions.contest JOIN `tasks` USING(`contest`) WHERE `submissions`.`id` = ?;", id)
@@ -111,7 +120,7 @@ func getSubmissionDetail(id string) detailType {
 	return detail
 }
 
-func getTaskInfo(contest string, task int) taskInfoType {
+func getTaskInfoDB(contest string, task int) taskInfoType {
 	var taskInfo taskInfoType
 	rows, err := db.Query("SELECT `title`, `problem`, `time_limit` FROM tasks WHERE `contest` = ? AND `task` = ?;", contest, task)
 	if err != nil {
@@ -128,7 +137,7 @@ func getTaskInfo(contest string, task int) taskInfoType {
 	return taskInfo
 }
 
-func getTaskList(contest string) []taskOverviewType {
+func getTaskListDB(contest string) []taskOverviewType {
 	var taskList []taskOverviewType
 	rows, err := db.Query("SELECT `title`, `time_limit` FROM `tasks` WHERE `contest` = ?;", contest)
 	if err != nil {
@@ -147,7 +156,7 @@ func getTaskList(contest string) []taskOverviewType {
 	return taskList
 }
 
-func getContestInfo(contest string) contestInfoType {
+func getContestInfoDB(contest string) contestInfoType {
 	var info contestInfoType
 	rows, err := db.Query("SELECT `title`, `description`, `explanation` FROM `contests` WHERE `id` = ?;", contest)
 	if err != nil {
@@ -162,6 +171,42 @@ func getContestInfo(contest string) contestInfoType {
 		}
 	}
 	return info
+}
+
+func getContestListDB() []contestOverviewType {
+	var list []contestOverviewType
+	rows, err := db.Query("SELECT `id`, `title` FROM `contests`;")
+	if err != nil {
+		log.Println(err)
+		return list
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var overview contestOverviewType
+		if err := rows.Scan(&overview.ID, &overview.Title); err != nil {
+			log.Println(err)
+			return list
+		}
+		list = append(list, overview)
+	}
+	return list
+}
+
+func getSystemOverviewDB() systemOverviewType {
+	var overview systemOverviewType
+	rows, err := db.Query("SELECT `overview` FROM `system`;")
+	if err != nil {
+		log.Println(err)
+		return overview
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err := rows.Scan(&overview.Overview); err != nil {
+			log.Println(err)
+			return overview
+		}
+	}
+	return overview
 }
 
 func initDB() {
