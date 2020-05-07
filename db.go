@@ -23,6 +23,8 @@ type detailType struct {
 	WholeResult  int             `json:"whole_result"`
 	MaxTime      int64           `json:"max_time"`
 	MaxMemory    int64           `json:"max_memory"`
+	Lang         string          `json:"lang"`
+	Code         string          `json:"code"`
 	CompileError string          `json:"compile_error"`
 	Details      []detailRowType `json:"details"`
 }
@@ -93,7 +95,7 @@ func registerSubmission(id string, contest string, task int, submission submissi
 func getSubmissionDetailDB(id string) detailType {
 	var detail detailType
 	var bytes []byte
-	rows, err := db.Query("SELECT `contests`.`title` AS `contest`, contest AS `contest_id`, `tasks`.`title` AS `task`, `submissions`.`task` AS `task_number`, `whole_result`, `max_time`, `max_memory`, `compile_error`, `details` FROM `submissions` JOIN `contests` ON contests.id = submissions.contest JOIN `tasks` USING(`contest`) WHERE `submissions`.`id` = ?;", id)
+	rows, err := db.Query("SELECT `contests`.`title` AS `contest`, contest AS `contest_id`, `tasks`.`title` AS `task`, `submissions`.`task` AS `task_number`, `whole_result`, `max_time`, `max_memory`, `lang`, `code`, `compile_error`, `details` FROM `submissions` JOIN `contests` ON contests.id = submissions.contest JOIN `tasks` USING(`contest`) WHERE `submissions`.`id` = ?;", id)
 	defer rows.Close()
 	if err != nil {
 		log.Println(err)
@@ -107,6 +109,8 @@ func getSubmissionDetailDB(id string) detailType {
 			&detail.WholeResult,
 			&detail.MaxTime,
 			&detail.MaxMemory,
+			&detail.Lang,
+			&detail.Code,
 			&detail.CompileError,
 			&bytes); err != nil {
 			log.Println(err)
