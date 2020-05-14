@@ -14,6 +14,7 @@ func main() {
 	judgingSubmissions = map[string][]*websocket.Conn{}
 	r := mux.NewRouter()
 	r.HandleFunc(`/api/`, getSystemOverview).Methods("GET")
+	r.HandleFunc(`/api/`, updateSystemOverview).Methods("PUT")
 	r.HandleFunc(`/api/contests/`, getContestList).Methods("GET")
 	r.HandleFunc(`/api/contests/{contest}`, getContestInfo).Methods("GET")
 	r.HandleFunc(`/api/contests/{contest}/tasks/`, getTaskList).Methods("GET")

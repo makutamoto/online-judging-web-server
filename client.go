@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -108,6 +109,28 @@ func getSystemOverview(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(bytes)
 	if err != nil {
 		log.Println(err)
+		return
+	}
+}
+
+func updateSystemOverview(w http.ResponseWriter, r *http.Request) {
+	var overview systemOverviewType
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = json.Unmarshal(bytes, &overview)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = updateSystemOverviewDB(overview)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }

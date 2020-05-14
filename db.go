@@ -213,6 +213,11 @@ func getSystemOverviewDB() systemOverviewType {
 	return overview
 }
 
+func updateSystemOverviewDB(overview systemOverviewType) error {
+	_, err := db.Query("UPDATE `system` SET `overview` = ?;", overview.Overview)
+	return err
+}
+
 func initDB() {
 	_db, err := sql.Open("mysql", "root:abcdefgh@/judge")
 	db = _db
