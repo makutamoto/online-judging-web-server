@@ -177,6 +177,16 @@ func getContestInfoDB(contest string) contestInfoType {
 	return info
 }
 
+func updateContestOverviewDB(contest string, info contestInfoType) error {
+	_, err := db.Query("UPDATE `contests` SET `description` = ? WHERE `id` = ?;", info.Description, contest)
+	return err
+}
+
+func updateContestExplanationDB(contest string, info contestInfoType) error {
+	_, err := db.Query("UPDATE `contests` SET `explanation` = ? WHERE `id` = ?;", info.Explanation, contest)
+	return err
+}
+
 func getContestListDB() []contestOverviewType {
 	var list []contestOverviewType
 	rows, err := db.Query("SELECT `id`, `title` FROM `contests`;")

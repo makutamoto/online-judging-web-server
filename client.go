@@ -85,6 +85,52 @@ func getContestInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateContestOverview(w http.ResponseWriter, r *http.Request) {
+	var info contestInfoType
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = json.Unmarshal(bytes, &info)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	err = updateContestOverviewDB(vars["contest"], info)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func updateContestExplanation(w http.ResponseWriter, r *http.Request) {
+	var info contestInfoType
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = json.Unmarshal(bytes, &info)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	err = updateContestExplanationDB(vars["contest"], info)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
 func getContestList(w http.ResponseWriter, r *http.Request) {
 	list := getContestListDB()
 	bytes, err := json.Marshal(&list)

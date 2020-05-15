@@ -17,6 +17,8 @@ func main() {
 	r.HandleFunc(`/api/`, updateSystemOverview).Methods("PUT")
 	r.HandleFunc(`/api/contests/`, getContestList).Methods("GET")
 	r.HandleFunc(`/api/contests/{contest}`, getContestInfo).Methods("GET")
+	r.HandleFunc(`/api/contests/{contest}`, updateContestOverview).Methods("PUT")
+	r.HandleFunc(`/api/contests/{contest}/explanation`, updateContestExplanation).Methods("PUT")
 	r.HandleFunc(`/api/contests/{contest}/tasks/`, getTaskList).Methods("GET")
 	r.HandleFunc(`/api/contests/{contest}/tasks/{task:[\d+]}`, getTaskInfo).Methods("GET")
 	r.HandleFunc(`/api/contests/{contest}/tasks/{task:[\d+]}`, judge).Methods("POST")
