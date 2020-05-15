@@ -55,6 +55,24 @@ func getTaskInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateTaskProblem(w http.ResponseWriter, r *http.Request) {
+	var info taskInfoType
+	vars := mux.Vars(r)
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = json.Unmarshal(bytes, &info)
+	task, _ := strconv.Atoi(vars["task"])
+	err = updateTaskProblemDB(vars["contest"], task, info)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func getTaskList(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	list := getTaskListDB(vars["contest"])

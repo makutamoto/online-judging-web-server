@@ -141,6 +141,11 @@ func getTaskInfoDB(contest string, task int) taskInfoType {
 	return taskInfo
 }
 
+func updateTaskProblemDB(contest string, task int, info taskInfoType) error {
+	_, err := db.Query("UPDATE `tasks` SET `problem` = ? WHERE `contest` = ? AND `task` = ?;", info.Problem, contest, task)
+	return err
+}
+
 func getTaskListDB(contest string) []taskOverviewType {
 	var taskList []taskOverviewType
 	rows, err := db.Query("SELECT `title`, `time_limit` FROM `tasks` WHERE `contest` = ?;", contest)
